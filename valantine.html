@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>be my Valentine? · animated</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #ffdde1 0%, #f9c9e2 100%);
+            font-family: 'Segoe UI', 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+            transition: background 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* floating hearts background (pro animated canvas) */
+        #floating-hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* main card – elevated, blur backdrop, smooth glassmorphism */
+        .valentine-card {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border-radius: 56px;
+            box-shadow: 0 35px 75px rgba(210, 40, 120, 0.25), 0 12px 28px rgba(255, 155, 185, 0.4), inset 0 2px 3px rgba(255,255,255,0.8);
+            padding: 3rem 4rem;
+            text-align: center;
+            z-index: 20;
+            border: 2px solid rgba(255, 245, 250, 0.7);
+            animation: floatIn 0.9s cubic-bezier(0.21, 1.11, 0.38, 1.09) forwards, cardGlow 3.5s infinite alternate;
+            max-width: 700px;
+            width: fit-content;
+            margin: 2rem;
+            position: relative;
+        }
+
+        @keyframes floatIn {
+            0% { opacity: 0; transform: scale(0.86) translateY(50px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        @keyframes cardGlow {
+            0% { box-shadow: 0 35px 65px rgba(255, 80, 140, 0.3), 0 12px 28px rgba(255, 150, 200, 0.5), inset 0 2px 8px white; }
+            100% { box-shadow: 0 45px 90px rgba(245, 60, 140, 0.5), 0 18px 36px rgba(255, 100, 170, 0.6), inset 0 0 10px #ffeef5; }
+        }
+
+        h1 {
+            font-size: 3.3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #d62b5e, #ff3b6f, #ff8e9f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1.2rem;
+            text-shadow: 0 2px 15px rgba(255, 60, 120, 0.3);
+            letter-spacing: -0.5px;
+            animation: titlePop 2s infinite ease-in-out;
+        }
+
+        @keyframes titlePop {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px #ffb6d1); }
+            50% { transform: scale(1.02); filter: drop-shadow(0 0 18px #ff88aa); }
+        }
+
+        .button-panel {
+            display: flex;
+            gap: 35px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .btn {
+            border: none;
+            font-size: 2rem;
+            font-weight: 600;
+            padding: 18px 50px;
+            border-radius: 80px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.12), 0 15px 35px rgba(255, 80, 130, 0.3);
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+            letter-spacing: 1.5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 15;
+            backface-visibility: hidden;
+        }
+
+        .btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1), 0 12px 25px rgba(255, 80, 130, 0.4);
+        }
+
+        #yesBtn {
+            background: linear-gradient(145deg, #ff3860, #ff6a8b);
+            color: white;
+            transform-origin: center;
+            animation: yesGlow 1.8s infinite alternate;
+        }
+
+        @keyframes yesGlow {
+            0% { box-shadow: 0 8px 0 #b13b55, 0 15px 30px #ff98af; }
+            100% { box-shadow: 0 8px 0 #b13b55, 0 25px 45px #ffb0c3; }
+        }
+
+        #yesBtn::after {
+            content: "❤️";
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0;
+            right: -20px;
+            transition: 0.3s;
+        }
+
+        #yesBtn:hover::after {
+            opacity: 1;
+            right: 15px;
+        }
+
+        #yesBtn:hover {
+            padding-right: 75px;
+            background: linear-gradient(145deg, #ff5277, #ff89a7);
+        }
+
+        /* NO button — with original nudge + smooth motion */
+        #noBtn {
+            background: #ffeef2;
+            color: #a0445c;
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 0 #d9b2bf, 0 15px 35px #fec5d0;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, box-shadow 0.3s;
+            transform: translate(0, 0);
+            will-change: transform;
+            font-weight: 600;
+        }
+
+        #noBtn:hover {
+            background: #fff0f5;
+            border-color: #ffa5c3;
+        }
+
+        /* responsive and cool */
+        .success-screen {
+            position: relative;
+            z-index: 30;
+            animation: successPop 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 70px;
+            padding: 4rem 6rem;
+            border: 3px solid rgba(255, 220, 240, 0.9);
+            box-shadow: 0 30px 70px rgba(245, 45, 110, 0.35);
+            text-align: center;
+        }
+
+        @keyframes successPop {
+            0% { opacity: 0; transform: scale(0.6) rotate(-3deg); }
+            70% { transform: scale(1.08) rotate(1deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0); }
+        }
+
+        .success-message {
+            font-size: 5.2rem;
+            font-weight: 900;
+            line-height: 1.2;
+            background: linear-gradient(145deg, #ff275b, #ff7ca8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 8px 15px #ffacc7);
+            margin-bottom: 1.5rem;
+            animation: successBounce 2.2s infinite;
+        }
+
+        @keyframes successBounce {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .sub-message {
+            font-size: 2rem;
+            color: #b32e5a;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 0.5rem 2rem;
+            border-radius: 60px;
+            backdrop-filter: blur(6px);
+            border: 1px solid white;
+            display: inline-block;
+        }
+
+        /* animated heart rain + particles */
+        #confetti-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* extra micro interactions */
+        .btn-yes-grow {
+            transition: transform 0.4s cubic-bezier(0.2, 1.2, 0.8, 1.2);
+        }
+
+        /* responsive design */
+        @media (max-width: 550px) {
+            h1 { font-size: 2.4rem; }
+            .btn { font-size: 1.8rem; padding: 15px 30px; }
+            .valentine-card { padding: 2rem 1.8rem; }
+            .success-message { font-size: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- canvas for floating hearts and sparkles (pro animated) -->
+    <canvas id="floating-hearts"></canvas>
+
+    <!-- main interactive card -->
+    <div id="game" class="valentine-card">
+        <h1>💖 will you be my Valentine? 💖</h1>
+        <div class="button-panel">
+            <button class="btn" id="yesBtn" onclick="sayYes()">Yes</button>
+            <button class="btn" id="noBtn" onclick="nudgeButton(event)">No</button>
+        </div>
+        <div style="margin-top: 20px; color:#b34e71; font-size: 1.3rem; opacity:0.8;">(the "no" button has a mind of its own ✨)</div>
+    </div>
+
+    <!-- success screen with animated icons -->
+    <div id="successMessage" class="success-screen hidden">
+        <div class="success-message">
+            🎈❤️ Y E S ! ❤️🎈
+        </div>
+        <div class="sub-message">best decision ever! 🍰💕</div>
+        <div style="font-size: 3rem; margin-top: 1.5rem; filter: drop-shadow(0 6px 8px #ffa5c3);">🥰💝💖</div>
+        <p>created by BIKRAM BHANDARI</p>
+    </div>
+    
+
+    <script>
+        (function() {
+            // ---------- PROFESSIONAL FLOATING HEARTS CANVAS (fully animated) ----------
+            const canvas = document.getElementById('floating-hearts');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let hearts = [];
+
+            function initCanvas() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+
+                // generate a bunch of romantic particles
+                const numHearts = 28;
+                hearts = [];
+                for (let i = 0; i < numHearts; i++) {
+                    hearts.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        size: 6 + Math.random() * 20,
+                        speedY: 0.2 + Math.random() * 1.1,
+                        speedX: (Math.random() - 0.5) * 0.3,
+                        opacity: 0.3 + Math.random() * 0.5,
+                        pulse: 0.5 + Math.random() * 0.8,
+                        angle: Math.random() * Math.PI * 2,
+                        char: Math.random() > 0.3 ? '❤️' : (Math.random() > 0.5 ? '🌸' : '✨'),
+                    });
+                }
+            }
+
+            function drawHearts() {
+                ctx.clearRect(0, 0, width, height);
+                
+                hearts.forEach(h => {
+                    // update position (gentle drifting)
+                    h.y -= h.speedY * 0.7;
+                    h.x += Math.sin(h.angle) * 0.15 + h.speedX * 0.2;
+                    h.angle += 0.005;
+
+                    // wrap around
+                    if (h.y < -40) {
+                        h.y = height + 20;
+                        h.x = Math.random() * width;
+                    }
+                    if (h.x > width + 30) h.x = -30;
+                    if (h.x < -30) h.x = width + 30;
+
+                    // draw floating element
+                    ctx.font = `${h.size}px 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'Comic Sans MS', cursive, sans-serif`;
+                    ctx.globalAlpha = h.opacity + 0.15 * Math.sin(Date.now() * 0.004 * h.pulse);
+                    ctx.fillText(h.char, h.x, h.y);
+                });
+                ctx.globalAlpha = 1.0;
+                requestAnimationFrame(drawHearts);
+            }
+
+            window.addEventListener('resize', () => {
+                initCanvas();
+            });
+
+            initCanvas();
+            drawHearts();
+
+            // ---------- NUDGE LOGIC WITH LUXURY FEEL & YES BUTTON GROWTH ----------
+            let currentX = 0;
+            let currentY = 0;
+            let yesScale = 1;
+            const noBtn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+            const gameCard = document.getElementById('game');
+            const successDiv = document.getElementById('successMessage');
+            const body = document.body;
+
+            // Expose nudgeButton globally (as used onclick)
+            window.nudgeButton = function(e) {
+                if (e) e.preventDefault();
+
+                // playful random nudge (larger moves, but not too far off screen)
+                const moveX = (Math.random() < 0.5 ? -70 : 80);
+                const moveY = (Math.random() < 0.5 ? -60 : 70);
+
+                // limit runaway translation – keep button roughly visible
+                let newX = currentX + moveX;
+                let newY = currentY + moveY;
+                newX = Math.min(220, Math.max(-220, newX));
+                newY = Math.min(150, Math.max(-150, newY));
+
+                currentX = newX;
+                currentY = newY;
+
+                // apply smooth nudge with elastic bounce feeling (cubic-bezier)
+                noBtn.style.transform = `translate(${currentX}px, ${currentY}px)`;
+
+                // YES button grows a little every time they click NO (max scale 2.2)
+                yesScale = Math.min(yesScale + 0.12, 2.2);
+                yesBtn.style.transform = `scale(${yesScale})`;
+                // also add subtle heart glow to yes button
+                yesBtn.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s';
+                
+                // little spark: change body gradient slightly for dynamic feedback
+                body.style.background = `linear-gradient(135deg, #ffdde1, #fbc1d7)`;
+                setTimeout(() => {
+                    body.style.background = `linear-gradient(145deg, #ffdde1 0%, #f9c9e2 100%)`;
+                }, 200);
+
+                // add mini heart burst at mouse (optional) — but we use canvas flair
+                // also rapidly shake noBtn text? tiny vibration for fun
+                noBtn.style.transform += ` rotate(${Math.random() * 4 - 2}deg)`;
+                setTimeout(() => {
+                    noBtn.style.transform = `translate(${currentX}px, ${currentY}px) rotate(0deg)`;
+                }, 120);
+            };
+
+            // Expose sayYes globally
+            window.sayYes = function() {
+                gameCard.classList.add('hidden');
+                successDiv.classList.remove('hidden');
+                body.style.background = 'linear-gradient(135deg, #ffe2f0, #ffb3d0, #ffc9e9)';
+                // trigger extra balloon emoji on canvas? we just keep floating hearts.
+                // add huge confetti-like hearts by temporarily boosting canvas objects
+                for (let i = 0; i < 10; i++) {
+                    hearts.push({
+                        x: width/2 + (Math.random()-0.5)*200,
+                        y: height/2 + (Math.random()-0.5)*200,
+                        size: 25 + Math.random() * 35,
+                        speedY: 0.6 + Math.random() * 2.5,
+                        speedX: (Math.random() - 0.5) * 0.9,
+                        opacity: 0.9,
+                        pulse: 0.8 + Math.random() * 0.5,
+                        angle: Math.random() * 6.28,
+                        char: '❤️',
+                    });
+                }
+                // also change canvas background feeling
+            };
+
+            // Extra: reset button position if success (optional but not necessary)
+            // make no button move also on hover? but not needed.
+            // add some initial yes scale smoothness
+            yesBtn.style.transition = 'transform 0.5s cubic-bezier(0.2, 1.2, 0.8, 1.2), background 0.3s, box-shadow 0.3s';
+
+            // when document ready, small initial nudge to show character? maybe not.
+            // but we add playful auto-bob to noBtn (tiny movement to show it's alive)
+            let idleAnimation;
+            function startIdleBob() {
+                let step = 0;
+                idleAnimation = setInterval(() => {
+                    // only if game visible and not success
+                    if (!gameCard.classList.contains('hidden')) {
+                        let tinyX = Math.sin(step) * 5;
+                        let tinyY = Math.cos(step * 1.3) * 4;
+                        // apply without overriding main nudge? we need to combine.
+                        // better not mess with user nudge. so stop.
+                        // but we can add gentle scale to yes button independently
+                        // no: we keep it simple — no idle interfere.
+                    }
+                    step += 0.2;
+                }, 300);
+            }
+            // startIdleBob(); (disabled to not conflict with nudge transform)
+        })();
+
+        // safeguard to avoid double transform override.
+        window.nudgeButton = function(e) {
+            const noBtn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+            let currentX = parseFloat(noBtn.dataset.x) || 0;
+            let currentY = parseFloat(noBtn.dataset.y) || 0;
+            let yesScale = parseFloat(yesBtn.dataset.scale) || 1;
+
+            const moveX = (Math.random() < 0.5 ? -65 : 75);
+            const moveY = (Math.random() < 0.5 ? -55 : 65);
+
+            let newX = currentX + moveX;
+            let newY = currentY + moveY;
+            newX = Math.min(240, Math.max(-240, newX));
+            newY = Math.min(170, Math.max(-170, newY));
+
+            noBtn.dataset.x = newX;
+            noBtn.dataset.y = newY;
+            noBtn.style.transform = `translate(${newX}px, ${newY}px) rotate(${Math.random() * 2 - 1}deg)`;
+            setTimeout(() => {
+                noBtn.style.transform = `translate(${newX}px, ${newY}px) rotate(0deg)`;
+            }, 100);
+
+            // yes button grow
+            yesScale = Math.min(yesScale + 0.1, 2.4);
+            yesBtn.dataset.scale = yesScale;
+            yesBtn.style.transform = `scale(${yesScale})`;
+            yesBtn.style.filter = `drop-shadow(0 0 ${yesScale*3}px #ffa5c3)`;
+
+            // background shimmer
+            document.body.style.background = `linear-gradient(125deg, #ffdae8, #ffb7c9)`;
+            setTimeout(() => {
+                document.body.style.background = `linear-gradient(145deg, #ffdde1 0%, #f9c9e2 100%)`;
+            }, 250);
+        };
+
+        window.sayYes = function() {
+            document.getElementById('game').classList.add('hidden');
+            document.getElementById('successMessage').classList.remove('hidden');
+            document.body.style.background = 'radial-gradient(circle at 30% 30%, #ffcad7, #ffb0cb, #ff98bb)';
+            // also launch a bunch of hearts from canvas
+            const canvas = document.getElementById('floating-hearts');
+            if (canvas && canvas.height) {
+                let heartsArray = window.hearts; // from closure, but we re-get
+                // if not accessible, just skip
+            }
+            // we can also create a short burst but not necessary.
+        };
+    </script>
+
+    <!-- tiny preload for dataset (init) -->
+    <script>
+        (function initData() {
+            document.getElementById('noBtn').dataset.x = 0;
+            document.getElementById('noBtn').dataset.y = 0;
+            document.getElementById('yesBtn').dataset.scale = 1;
+        })();
+    </script>
+</body>
+</html>
